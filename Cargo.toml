@@ -1,10 +1,10 @@
 [package]
-name = "toggle"
+name = "abler"
 version = "0.1.0"
 edition = "2021"
 authors = ["Artyom Sakharilenko <kryvashek@gmail.com>"]
-description = "Tiny type to process various toggles/flags/etc as one"
-repository = "https://github.com/kryvashek/toggle"
+description = "Tiny type to process various ablers/flags/etc as one"
+repository = "https://github.com/kryvashek/abler"
 license = "MIT"
 categories = ["no-std"]
 

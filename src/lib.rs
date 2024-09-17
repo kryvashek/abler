@@ -12,20 +12,20 @@ pub use kind::*;
 
 #[cfg_attr(feature = "serde", derive(DeserializeFromStr, SerializeDisplay))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
-pub enum Toggle {
+pub enum Abler {
     #[default]
     Disable, 
     Enable,
 }
 
-include!(concat!(env!("OUT_DIR"), "/toggle_set.rs"));
+include!(concat!(env!("OUT_DIR"), "/abler_set.rs"));
 
-/// Type representing some toggle/flag/etc with various conversions suport.
-impl Toggle {
+/// Type representing some toggle/switch(er)/flag/etc with various conversions suport.
+impl Abler {
     pub const DEFAULT_STRICTNESS: bool = true;
 
-    pub fn new<T: InToggle>(src: T) -> Result<Self, T::Error> {
-        src.in_toggle::<{Self::DEFAULT_STRICTNESS}>()
+    pub fn new<T: InAbler>(src: T) -> Result<Self, T::Error> {
+        src.in_abler::<{Self::DEFAULT_STRICTNESS}>()
     }
 
     pub fn from_u32_relaxed(src: u32) -> Self {
@@ -75,77 +75,77 @@ impl Toggle {
     }
 }
 
-impl fmt::Display for Toggle {
+impl fmt::Display for Abler {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.into())
     }
 }
 
-impl From<bool> for Toggle {
+impl From<bool> for Abler {
     fn from(value: bool) -> Self {
         value.then_some(Self::Enable).unwrap_or(Self::Disable)
     }
 }
 
-impl From<&bool> for Toggle {
+impl From<&bool> for Abler {
     fn from(value: &bool) -> Self {
         Self::from(*value)
     }
 }
 
-impl From<Toggle> for u8 {
-    fn from(value: Toggle) -> Self {
+impl From<Abler> for u8 {
+    fn from(value: Abler) -> Self {
         match value {
-            Toggle::Disable => 0,
-            Toggle::Enable => 1,
+            Abler::Disable => 0,
+            Abler::Enable => 1,
         }
     }
 }
 
-impl From<&Toggle> for u8 {
-    fn from(value: &Toggle) -> Self {
+impl From<&Abler> for u8 {
+    fn from(value: &Abler) -> Self {
         Self::from(*value)
     }
 }
 
-impl From<Toggle> for i8 {
-    fn from(value: Toggle) -> Self {
+impl From<Abler> for i8 {
+    fn from(value: Abler) -> Self {
         match value {
-            Toggle::Disable => 0,
-            Toggle::Enable => 1,
+            Abler::Disable => 0,
+            Abler::Enable => 1,
         }
     }
 }
 
-impl From<&Toggle> for i8 {
-    fn from(value: &Toggle) -> Self {
+impl From<&Abler> for i8 {
+    fn from(value: &Abler) -> Self {
         Self::from(*value)
     }
 }
 
-impl From<Toggle> for &'static str {
-    fn from(value: Toggle) -> Self {
+impl From<Abler> for &'static str {
+    fn from(value: Abler) -> Self {
         value.display(Kind::default()).into()
     }
 }
 
-impl From<&Toggle> for &'static str {
-    fn from(value: &Toggle) -> Self {
+impl From<&Abler> for &'static str {
+    fn from(value: &Abler) -> Self {
         Self::from(*value)
     }
 }
 
-impl str::FromStr for Toggle {
+impl str::FromStr for Abler {
     type Err = errors::FromStr;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        s.in_toggle::<{Self::DEFAULT_STRICTNESS}>()
+        s.in_abler::<{Self::DEFAULT_STRICTNESS}>()
     }
 }
 
 #[derive(Debug, Clone, Copy)]
 pub struct Display {
-    value: Toggle,
+    value: Abler,
     kind: Kind,
 }
 
@@ -167,37 +167,37 @@ impl fmt::Display for Display {
     }
 }
 
-pub trait InToggle {
+pub trait InAbler {
     type Error;
 
-    fn in_toggle<const STRICT: bool>(self) -> Result<Toggle, Self::Error>;
+    fn in_abler<const STRICT: bool>(self) -> Result<Abler, Self::Error>;
 }
 
-impl InToggle for u32 {
+impl InAbler for u32 {
     type Error = errors::FromU32;
 
-    fn in_toggle<const STRICT: bool>(self) -> Result<Toggle, Self::Error> {
+    fn in_abler<const STRICT: bool>(self) -> Result<Abler, Self::Error> {
         if STRICT {
-            Toggle::try_from_u32_strict(self)
+            Abler::try_from_u32_strict(self)
         } else {
-            Ok(Toggle::from_u32_relaxed(self))
+            Ok(Abler::from_u32_relaxed(self))
         }
     }
 }
 
-impl InToggle for char {
+impl InAbler for char {
     type Error = errors::FromChar;
 
-    fn in_toggle<const STRICT: bool>(self) -> Result<Toggle, Self::Error> {
-        Toggle::try_from_char(self, STRICT)
+    fn in_abler<const STRICT: bool>(self) -> Result<Abler, Self::Error> {
+        Abler::try_from_char(self, STRICT)
     }
 }
 
-impl InToggle for &str {
+impl InAbler for &str {
     type Error = errors::FromStr;
 
-    fn in_toggle<const STRICT: bool>(self) -> Result<Toggle, Self::Error> {
-        Toggle::try_from_str(self, STRICT)
+    fn in_abler<const STRICT: bool>(self) -> Result<Abler, Self::Error> {
+        Abler::try_from_str(self, STRICT)
     }
 }
 
@@ -205,12 +205,12 @@ pub mod errors {
     use core::num;
 
     #[derive(Debug, Clone, thiserror::Error, PartialEq, Eq)]
-    #[error("failed converting strict Toggle value from '{0}'")]
+    #[error("failed converting strict Abler value from '{0}'")]
     pub struct FromU32(pub(super) u32);
 
     #[derive(Debug, Clone, thiserror::Error, PartialEq, Eq)]
     pub enum FromChar {
-        #[error("failed parsing Toggle value from '{0}'")]
+        #[error("failed parsing Abler value from '{0}'")]
         Char(char),
         #[error(transparent)]
         U32(#[from] FromU32),
@@ -224,9 +224,9 @@ pub mod errors {
 
     #[derive(Debug, Clone, thiserror::Error, PartialEq, Eq)]
     pub enum FromStr {
-        #[error("failed parsing Toggle value from '{0}'")]
+        #[error("failed parsing Abler value from '{0}'")]
         Text(String),
-        #[error("failed parsing Toggle value from '{value}': {source}")]
+        #[error("failed parsing Abler value from '{value}': {source}")]
         Parse {
             source: num::ParseIntError,
             value: String

@@ -1,17 +1,17 @@
 use std::{env, fs, io::{self, Write as _}, path, fmt};
 
 fn main() {
-    build_toggle_phf_sets().expect("Building Toggle PHF set should succeed");
+    build_abler_phf_sets().expect("Building Abler PHF set should succeed");
 }
 
 #[derive(Debug)]
-enum BuildTogglePhfSetsError {
+enum BuildAblerPhfSetsError {
     GetEnv(env::VarError),
     CreateFile(io::Error),
     WriteToFile(io::Error)
 }
 
-impl fmt::Display for BuildTogglePhfSetsError {
+impl fmt::Display for BuildAblerPhfSetsError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::GetEnv(err) => write!(f, "failed reading environment variable: {}", err),
@@ -25,12 +25,12 @@ include!{"src/cis.rs"}
 
 include!{"src/kind.rs"}
 
-fn build_toggle_phf_sets() -> Result<(), BuildTogglePhfSetsError> {
+fn build_abler_phf_sets() -> Result<(), BuildAblerPhfSetsError> {
 
-    let env_path = env::var("OUT_DIR").map_err(BuildTogglePhfSetsError::GetEnv)?;
-    let path = path::Path::new(&env_path).join("toggle_set.rs");
+    let env_path = env::var("OUT_DIR").map_err(BuildAblerPhfSetsError::GetEnv)?;
+    let path = path::Path::new(&env_path).join("abler_set.rs");
 
-    let mut file = io::BufWriter::new(fs::File::create(&path).map_err(BuildTogglePhfSetsError::CreateFile)?);
+    let mut file = io::BufWriter::new(fs::File::create(&path).map_err(BuildAblerPhfSetsError::CreateFile)?);
     
     let mut strs_set = phf_codegen::Map::new();
 
@@ -42,7 +42,7 @@ fn build_toggle_phf_sets() -> Result<(), BuildTogglePhfSetsError> {
 
     write!(
         &mut file,
-        "impl Toggle {{\n\tconst ALIASES: &'static phf::Map<cis::Cis<'static>, bool> = &{};\n}}",
+        "impl Abler {{\n\tconst ALIASES: &'static phf::Map<cis::Cis<'static>, bool> = &{};\n}}",
         strs_set.build(),
-    ).map_err(BuildTogglePhfSetsError::WriteToFile)
+    ).map_err(BuildAblerPhfSetsError::WriteToFile)
 }

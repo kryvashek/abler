@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 authors = ["Artyom Sakharilenko <kryvashek@gmail.com>"]
 description = "Tiny type to process various toggles/flags/etc as one"
+repository = "https://github.com/kryvashek/toggle"
 license = "MIT"
 categories = ["no-std"]
 
